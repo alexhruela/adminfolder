@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Router Management</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            color: #222;
+            background: #f4f4f4;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 26px;
+        }
+
+        .card {
+            margin-bottom: 16px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+
+        .info-row,
+        .command-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child,
+        .command-row:last-child {
+            border-bottom: 0;
+        }
+
+        .label {
+            color: #666;
+        }
+
+        .command-row strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        code {
+            color: #444;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            color: #222;
+            background: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+        }
+
+        .run-button {
+            width: 100%;
+            margin-top: 14px;
+            border-color: #2475b8;
+            color: white;
+            background: #2475b8;
+            font-size: 15px;
+        }
+
+        .run-button:hover {
+            background: #195f99;
+        }
+
+        .error,
+        .success {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .error {
+            border: 1px solid #e0b0b0;
+            color: #9d2929;
+            background: #fff1f1;
+        }
+
+        .success {
+            border: 1px solid #b7d6c4;
+            color: #276443;
+            background: #eff8f2;
+        }
+
+        .result {
+            margin-top: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .result h3 {
+            margin: 0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            background: #f7f7f7;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        .result pre {
+            margin: 0;
+            padding: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding-top: 18px;
+            }
+
+            .command-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Router Management</h1>
+
+        <section class="card">
+            <h2>Router Details</h2>
+            <div class="info-row">
+                <span class="label">IP Address</span>
+                <strong>192.168.10.234</strong>
+            </div>
+            <div class="info-row">
+                <span class="label">Connection</span>
+                <strong>Cisco IOS Telnet</strong>
+            </div>
+            <div class="info-row">
+                <span class="label">Port</span>
+                <strong>32770</strong>
+            </div>
+            <div class="info-row">
+                <span class="label">Status</span>
+                <strong>Ready to Connect</strong>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Commands</h2>
+
+            <div class="command-row">
+                <div>
+                    <strong>Router Information</strong>
+                    <code>show version</code>
+                </div>
+                <button type="button" onclick="copyCommand('show version', this)">Copy</button>
+            </div>
+
+            <div class="command-row">
+                <div>
+                    <strong>Interface Status</strong>
+                    <code>show ip interface brief</code>
+                </div>
+                <button type="button" onclick="copyCommand('show ip interface brief', this)">Copy</button>
+            </div>
+
+            <div class="command-row">
+                <div>
+                    <strong>Active Configuration</strong>
+                    <code>show running-config</code>
+                </div>
+                <button type="button" onclick="copyCommand('show running-config', this)">Copy</button>
+            </div>
+
+            <form action="/" method="POST">
+                <button type="submit" class="run-button">Run All Commands</button>
+            </form>
+        </section>
+
+        {% if error %}
+        <div class="error">
+            <strong>Connection Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if results %}
+        <section class="card">
+            <h2>Command Results</h2>
+            <div class="success">Commands have been executed.</div>
+
+            {% for command, output in results.items() %}
+            <div class="result">
+                <h3>{{ command }}</h3>
+                <pre>{{ output }}</pre>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+    </main>
+
+    <script>
+        async function copyCommand(command, button) {
+            try {
+                await navigator.clipboard.writeText(command);
+                const original = button.textContent;
+                button.textContent = "Copied";
+                setTimeout(() => { button.textContent = original; }, 1200);
+            } catch (error) {
+                alert("Unable to copy command.");
+            }
+        }
+    </script>
+</body>
+</html>

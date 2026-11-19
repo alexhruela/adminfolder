@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from netmiko import ConnectHandler
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="template")
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -14,7 +14,7 @@ def index():
     if request.method == "POST":
         router_device = {
             'device_type': 'cisco_ios_telnet',
-            'ip': "192.168.10.68",
+            'ip': "192.168.10.234",
             'port': 32770,
             'username': 'admin',
             'password': 'eve123',
@@ -46,7 +46,7 @@ def index():
             error = f"Connection failed: {e}"
 
 
-        return render_template("index.html", results=results, error=error)
+    return render_template("index.html", results=results, error=error)
 
 
 if __name__ == "__main__":
